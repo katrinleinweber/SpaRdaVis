@@ -47,3 +47,34 @@ Sparda$Umsatz <- gsub(pattern = ",",
                       x = Sparda$Umsatz
                       )
 Sparda$Umsatz <- as.numeric(Sparda$Umsatz)
+
+# spalte Betraege in Einkommen und Ausgaben
+Sparda$Ausgabe <- as.numeric("")
+Sparda$Einnahme <- as.numeric("")
+for (i in 1:nrow(Sparda)) {
+  if (Sparda$Umsatz[i] < 0) {
+    Sparda$Ausgabe[i] <- Sparda$Umsatz[i]
+    Sparda$Umsatzstyp[i] <- "Ausgabe"
+  }
+  else if (Sparda$Umsatz[i] > 0) {
+    Sparda$Einnahme[i] <- Sparda$Umsatz[i]
+    Sparda$Umsatzstyp[i] <- "Einnahme"
+  }
+}
+Sparda$Umsatzstyp <- as.factor(Sparda$Umsatzstyp)
+
+# visualisiere Beträge der Einnahmen & Ausgaben
+SpardaPlot <- ggplot(data    = Sparda, 
+                     mapping = aes(x     = Buchungstag,
+                                   y     = abs(Umsatz),
+                                   color = Umsatzstyp
+                                   )
+                     ) +
+  geom_point(alpha = 0.5) +
+  scale_color_manual(values = c("red", "blue")) + 
+  scale_x_date(labels = date_format(format = "%b.\'%y ")) +
+  labs(x = NULL, y = "Betrag (EUR)", size = "Betrag (EUR)") +
+  theme_classic() +
+  theme(legend.position = "top")
+SpardaPlot
+ggsave("SpaRdaVis-Buchungen.pdf")
